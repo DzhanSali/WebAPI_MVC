@@ -8,6 +8,8 @@ namespace WebAPI.Repository
         public DBConnection(DbContextOptions<DBConnection> context) : base(context)
         {
         }
-            public DbSet<Person> People { get; set; }
+        public DbSet<Person> People { get; set; }
+        public DbSet<Book> Books { get; set; }
+        public DbSet<ReadBooks> ReadBooks { get; set; }
     }
 }

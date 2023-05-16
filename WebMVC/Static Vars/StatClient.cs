@@ -9,7 +9,7 @@ namespace WebMVC.Static_Vars
 
         static StatClient()
         {
-            WebAPIClient.BaseAddress = new Uri("http://localhost:5091/api/Person");
+            WebAPIClient.BaseAddress = new Uri("http://localhost:5091/api/");
             WebAPIClient.DefaultRequestHeaders.Clear();
             WebAPIClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
