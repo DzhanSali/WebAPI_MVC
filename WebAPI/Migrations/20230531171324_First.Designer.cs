@@ -12,8 +12,8 @@ using WebAPI.Repository;
 namespace WebAPI.Migrations
 {
     [DbContext(typeof(DBConnection))]
-    [Migration("20230516170705_Second")]
-    partial class Second
+    [Migration("20230531171324_First")]
+    partial class First
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -41,6 +41,9 @@ namespace WebAPI.Migrations
                     b.Property<string>("Description")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("ISBN")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<short>("PageNumber")
                         .HasColumnType("smallint");

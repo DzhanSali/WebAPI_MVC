@@ -39,6 +39,9 @@ namespace WebAPI.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<string>("ISBN")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<short>("PageNumber")
                         .HasColumnType("smallint");
 

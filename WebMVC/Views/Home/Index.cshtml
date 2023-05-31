@@ -1,8 +1,24 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
-
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewData["Title"]</title>
+    <link href="C:\Users\Lenovo Y510P\source\repos\WebAPI\WebMVC\wwwroot\lib\bootstrap\dist\css\bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center align-items-center" style="height: 100vh;">
+            <div class="col-md-6">
+                <div class="card p-4 text-center shadow" style="background-color: gray; box-shadow: 0 0 1rem 1rem rgba(0,.15,0.15)!important">
+                    <h3 class="mb-4">Welcome to FineReads</h3>
+                    <div class="mb-4">
+                        <a class="btn btn-primary btn-lg btn-block" href="/Home/Login">Sign In</a>
+                    </div>
+                    <div>
+                        <a class="btn btn-secondary btn-lg btn-block" href="/Home/Registration">Sign Up</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

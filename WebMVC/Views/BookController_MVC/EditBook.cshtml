@@ -1,0 +1,101 @@
+﻿@model WebMVC.Models.BookModel_MVC
+
+@{
+    ViewData["Title"] = "EditBook";
+}
+
+<h1>Edit</h1>
+
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="EditBook">
+            
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <input asp-for="Id" class="form-control" type="hidden"/>
+                <span asp-validation-for="Id" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ISBN" class="control-label"></label>
+                <input asp-for="ISBN" class="form-control" />
+                <span asp-validation-for="ISBN" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input asp-for="PersonId" class="form-control" type="hidden"/>
+                <span asp-validation-for="PersonId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Title" class="control-label"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Author" class="control-label"></label>
+                <input asp-for="Author" class="form-control" />
+                <span asp-validation-for="Author" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PageNumber" class="control-label"></label>
+                <input asp-for="PageNumber" class="form-control" />
+                <span asp-validation-for="PageNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Published" class="control-label"></label>
+                <input asp-for="Published" class="form-control" />
+                <span asp-validation-for="Published" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <button type="button" class="btn btn-primary" id="edit">Edit</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+<script>
+    document.getElementById("edit").addEventListener("click", saveChanges);
+
+    function saveChanges() {
+        document.getElementById("edit").removeEventListener("click", saveChanges);
+        // Get the whole form and data from it
+        var form = document.querySelector("form");
+
+        // Create FormData object to collect form data
+        var formData = new FormData(form);
+
+        var requestBody = {};
+        formData.forEach(function (value, key) {
+            requestBody[key] = value;
+        });
+
+        var bookId = requestBody["Id"];
+        $.ajax({
+            url: "http://localhost:5091/api/Books/" + bookId,
+            type: "PUT",
+            contentType: "application/json",
+            data: JSON.stringify(requestBody),
+            
+            success: function () {
+                alert("Book updated successfully");
+                window.location.href = "/BookController_MVC/Index";
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                alert("Error updating book: " + errorThrown);
+            }
+        });
+    }
+</script>

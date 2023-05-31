@@ -12,23 +12,23 @@ namespace WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BookController : ControllerBase
+    public class BooksController : ControllerBase
     {
         private readonly DBConnection _context;
 
-        public BookController(DBConnection context)
+        public BooksController(DBConnection context)
         {
             _context = context;
         }
 
-        // GET: api/Book
+        // GET: api/Books
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
         {
             return await _context.Books.ToListAsync();
         }
 
-        // GET: api/Book/5
+        // GET: api/Books/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Book>> GetBook(int id)
         {
@@ -42,7 +42,7 @@ namespace WebAPI.Controllers
             return book;
         }
 
-        // PUT: api/Book/5
+        // PUT: api/Books/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutBook(int id, Book book)
@@ -73,7 +73,7 @@ namespace WebAPI.Controllers
             return NoContent();
         }
 
-        // POST: api/Book
+        // POST: api/Books
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Book>> PostBook(Book book)
@@ -84,7 +84,7 @@ namespace WebAPI.Controllers
             return CreatedAtAction("GetBook", new { id = book.Id }, book);
         }
 
-        // DELETE: api/Book/5
+        // DELETE: api/Books/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBook(int id)
         {

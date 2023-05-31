@@ -7,6 +7,7 @@ namespace WebAPI.Model
     {
         [Key]
         public int Id { get; set; }
+        public string ISBN { get; set; }    
         public int PersonId { get; set; }
         public Person Person { get; set; }
         [Required]

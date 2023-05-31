@@ -1,0 +1,154 @@
+﻿@model PersonModel_MVC
+
+<h1 style="display: flex; justify-content: center;">
+    Welcome, @Model.Name!
+</h1>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title" style="display: flex; justify-content: center;">Your Information</h5>
+        <div class="row" style="justify-content: center;">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="name" value="@Model.Name" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="age" class="form-label">Age</label>
+                    <input type="text" class="form-control" id="age" value="@Model.Age" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="address" class="form-label">Address</label>
+                    <input type="text" class="form-control" id="address" value="@Model.Address" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="gender" class="form-label">Gender</label>
+                    <input type="text" class="form-control" id="gender" value="@Model.Gender" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="phoneNumber" class="form-label">Phone Number</label>
+                    <input type="text" class="form-control" id="phoneNumber" value="@Model.PhoneNumber" readonly>
+                </div>     
+                <div id="passwordContainer" style="display: none;">
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password">
+                    </div>
+                </div>
+                <button type="button" class="btn btn-primary" id="editProfileButton">Edit Profile</button>
+                <button type="button" class="btn btn-danger" id="deleteAccountButton">Delete Account</button>
+                <div style="display: initial;">
+                    <a class="btn btn-primary" href="/Home/Index">Log Out</a>                   
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var userId = "@Model.Id";
+
+    document.getElementById("editProfileButton").addEventListener("click", function () {
+        // Enable input fields for editing
+        document.getElementById("name").readOnly = false;
+        document.getElementById("age").readOnly = false;
+        document.getElementById("address").readOnly = false;
+        document.getElementById("gender").readOnly = false;
+        document.getElementById("phoneNumber").readOnly = false;
+        document.getElementById("passwordContainer").style.display = "block";
+
+        // Change button text to "Save Changes"
+        this.textContent = "Save Changes";
+        // Change button event listener to handle saving changes
+        this.removeEventListener("click", arguments.callee);
+        this.addEventListener("click", saveChanges);
+    });
+
+    function saveChanges() {
+        // Get updated values from input fields
+        var name = document.getElementById("name").value;
+        var age = document.getElementById("age").value;
+        var address = document.getElementById("address").value;
+        var gender = document.getElementById("gender").value;
+        var phoneNumber = document.getElementById("phoneNumber").value;
+        var password = document.getElementById("password").value;
+        
+        var requestBody = {
+            Id: userId,
+            Name: name,
+            Age: age,
+            Address: address,
+            Gender: gender,
+            PhoneNumber: phoneNumber,
+            Password: password
+        };
+
+        $.ajax({
+            url: "http://localhost:5091/api/Person/" + userId,
+            type: "PUT",
+            contentType: "application/json",
+            data: JSON.stringify(requestBody),
+            success: function () {
+                // Disable input fields again
+                document.getElementById("name").readOnly = true;
+                document.getElementById("age").readOnly = true;
+                document.getElementById("address").readOnly = true;
+                document.getElementById("gender").readOnly = true;
+                document.getElementById("phoneNumber").readOnly = true;
+                document.getElementById("passwordContainer").style.display = "none";
+
+                // Change button text back to "Edit Profile"
+                document.getElementById("editProfileButton").textContent = "Edit Profile";
+                // Change button event listener back to handle editing
+                document.getElementById("editProfileButton").removeEventListener("click", saveChanges);
+                document.getElementById("editProfileButton").addEventListener("click", function () {
+                    // Enable input fields for editing
+                    document.getElementById("name").readOnly = false;
+                    document.getElementById("age").readOnly = false;
+                    document.getElementById("address").readOnly = false;
+                    document.getElementById("gender").readOnly = false;
+                    document.getElementById("phoneNumber").readOnly = false;
+                    document.getElementById("passwordContainer").style.display = "block";
+
+                    // Change button text to "Save Changes"
+                    this.textContent = "Save Changes";
+                    // Change button event listener to handle saving changes
+                    this.removeEventListener("click", arguments.callee);
+                    this.addEventListener("click", saveChanges);
+                });
+            },
+            error: function () {
+                // Handle error if the update fails
+                alert("An error occurred while updating the profile. Please try again.");
+            }
+        });
+    }
+
+
+    document.getElementById("deleteAccountButton").addEventListener("click", function () {
+        var password = prompt("Please enter your password to confirm the account deletion:");
+
+        if (password !== null) {
+            var requestBody = {
+                Id: userId,
+                Password: password
+            };
+
+            $.ajax({
+                url: "http://localhost:5091/api/Person/" + userId,
+                type: "DELETE",
+                contentType: "application/json",
+                data: JSON.stringify(requestBody),
+                success: function () {
+                    // Redirect to account deletion success page or perform other actions
+                    alert("Your account has been successfully deleted.");
+                    window.location.href = "/home/index";
+                },
+                error: function () {
+                    // Handle error if the deletion fails
+                    alert("An error occurred while deleting the account. Please try again.");
+                }
+            });
+        }
+    });
+</script>

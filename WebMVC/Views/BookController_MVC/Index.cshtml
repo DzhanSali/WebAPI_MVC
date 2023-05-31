@@ -4,19 +4,15 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Books</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+<button type="button" class="btn btn-primary" id="addNewButton" onclick="location.href='/BookController_MVC/CreateBook'">Add New</button>
+
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Id)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PersonId)
+                @Html.DisplayNameFor(model => model.ISBN)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Title)
@@ -37,35 +33,48 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PersonId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Author)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PageNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Published)
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-            </td>
-        </tr>
-}
+        @if (Model != null){
+        foreach (var item in Model)
+        {
+            <tr>
+                <th>
+                    @Html.DisplayFor(modelItem => item.ISBN)
+                </th>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Author)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PageNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Published)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "EditBook", new { bookid = item.Id }) |
+                        <button type="button" class="btn btn-primary" id="delete" onclick="deleteBook(@item.Id)">Delete</button>
+                </td>
+            </tr>
+        }
+        }
     </tbody>
 </table>
+
+<script>
+    function deleteBook(bookId) {
+        $.ajax({
+            url: "http://localhost:5091/api/Books/" + bookId,
+            type: "DELETE",
+            success: function () {
+                window.location.reload(); 
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                alert("Error deleting book: " + errorThrown);
+            }
+        }
+</script>
