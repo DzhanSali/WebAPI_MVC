@@ -7,5 +7,7 @@ namespace WebMVC.Models
         public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 
         public string LoginError { get; set; }
+
+        public string NotLogged { get; set; }
     }
 }

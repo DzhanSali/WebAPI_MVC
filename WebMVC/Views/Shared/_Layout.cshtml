@@ -8,6 +8,10 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/WebMVC.styles.css" asp-append-version="true" />
 </head>
+@using static WebMVC.Static_Vars.Service;
+@{
+    int userId = WebMVC.Static_Vars.Service.GetUserId();
+}
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
@@ -18,19 +22,38 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                    <ul class="navbar-nav flex-grow-1 justify-content-center" style="display:flex; justify-content:center;">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Registration">Sign Up</a>
-                        </li>   
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Login">Sign In</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="BookController_MVC" asp-action="Index">Books</a>
+                        @if (userId != 0)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Profile" asp-route-accountId="@userId">Profile</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="BookController_MVC" asp-action="Index">Books</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="ReadBooksController_MVC" asp-action="Index">Finished Books</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Login">Sign In</a>
+                            </li>
+                        }                                                           
+                    </ul>
+                    <ul class="navbar-nav flex-grow-1" style="display:contents;">
+                    @if (userId != 0)
+                    {
+                        <li class="nav-item @*ms-auto me-2*@" style="justify-content: flex-end">
+                            <form asp-area="" asp-controller="Home" asp-action="Logout">
+                                <button type="submit" class="btn btn-link nav-link text-dark">Logout</button>
+                            </form>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="ReadBooksController_MVC" asp-action="Index">Finished Books</a>
-                        </li>
+                    }
                     </ul>
                 </div>
             </div>

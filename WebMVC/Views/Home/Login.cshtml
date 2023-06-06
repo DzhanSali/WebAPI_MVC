@@ -1,19 +1,24 @@
 ﻿@model LoginVM
 
 <!DOCTYPE html>
-<h2>Login</h2>
 
 
-<form method="post" action="@Url.Action("Login")">
+<div style="display:grid; justify-content: center;">
+    <h2 style="margin:50px; text-align: center;">Login</h2>
+    <div class="card p-4 text-center shadow" style="background-color: white; box-shadow: 0 0 1rem 1rem rgba(30, 153, 191, 0.31) !important;">
+<form method="post" action="@Url.Action("Login")" style="display:grid; justify-items:center">
     <div>
-        <label for="Name">Name:</label>
+            <label for="Name" style="display:grid; font-weight: bold;">Name: </label>
         <input type="text" id="username" name="Name" />
     </div>
-    <div>
-        <label for="Password">Password:</label>
+    <br />
+        <div style="margin-top: 20px;">
+            <label for="Password" style="display:grid; font-weight: bold;">Password:</label>
         <input type="password" id="password" name="Password" />
     </div>
-    <div>
-        <input type="submit" value="Login" />
+        <div style="margin-top: 20px;">
+                <input type="submit" value="Login" style="background-color: rgba(22, 157, 238, 0.52); border-radius: 5px;" />
     </div>
 </form>
+</div>
+</div>

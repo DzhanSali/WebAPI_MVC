@@ -35,13 +35,13 @@ namespace WebAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ISBN = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ISBN = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PersonId = table.Column<int>(type: "int", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Author = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     PageNumber = table.Column<short>(type: "smallint", nullable: false),
-                    Published = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Published = table.Column<short>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -60,11 +60,12 @@ namespace WebAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    ISBN = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PersonId = table.Column<int>(type: "int", nullable: false),
-                    BookId = table.Column<int>(type: "int", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Author = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    Review = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     PageNumber = table.Column<short>(type: "smallint", nullable: false),
                     Finished = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -72,28 +73,17 @@ namespace WebAPI.Migrations
                 {
                     table.PrimaryKey("PK_ReadBooks", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ReadBooks_Books_BookId",
-                        column: x => x.BookId,
-                        principalTable: "Books",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "FK_ReadBooks_People_PersonId",
                         column: x => x.PersonId,
                         principalTable: "People",
-                        principalColumn: "Id");
-                       // onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Books_PersonId",
                 table: "Books",
                 column: "PersonId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ReadBooks_BookId",
-                table: "ReadBooks",
-                column: "BookId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ReadBooks_PersonId",
@@ -105,10 +95,10 @@ namespace WebAPI.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ReadBooks");
+                name: "Books");
 
             migrationBuilder.DropTable(
-                name: "Books");
+                name: "ReadBooks");
 
             migrationBuilder.DropTable(
                 name: "People");

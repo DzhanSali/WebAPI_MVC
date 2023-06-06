@@ -22,7 +22,6 @@ namespace WebMVC.Controllers
         private static readonly HttpClient _httpClient = StatClient.WebAPIClient;
         private readonly IConfiguration _config;
         private string _token;
-        public static int statUserId;
 
         public HomeController(ILogger<HomeController> logger, IConfiguration config)
         {
@@ -30,30 +29,11 @@ namespace WebMVC.Controllers
             _config = config;
         }
 
-        private async Task<IEnumerable<PersonModel_MVC>> GetUsersFromAPI()
-        {
-            var request = new HttpRequestMessage(HttpMethod.Get, "http://localhost:5091/api/Person");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _token);
-
-            var response = await _httpClient.SendAsync(request);
-
-            if (response.IsSuccessStatusCode)
-            {
-                var jsonResult = await response.Content.ReadAsStringAsync();
-                var users = JsonConvert.DeserializeObject<IEnumerable<PersonModel_MVC>>(jsonResult);
-                return users;
-            }
-            else
-            {
-                return Enumerable.Empty<PersonModel_MVC>();
-            }
-        }
-
         private async Task<PersonModel_MVC> GetCurrentUser(string token)
         {
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var response = await _httpClient.GetAsync("http://localhost:5091/api/Login");
+            var response = await _httpClient.GetAsync("http://localhost:8080/api/Login");
             if (response.IsSuccessStatusCode)
             {
                 var jsonResult = await response.Content.ReadAsStringAsync();
@@ -67,13 +47,12 @@ namespace WebMVC.Controllers
 
         public async Task<IActionResult> Profile(int accountId)
         {
-
-            var currentUser = await GetUsersFromAPI();
+            var currentUser = await Service.GetUsersFromAPI();
             var user = currentUser.FirstOrDefault(p => p.Id == accountId);
-            statUserId = user.Id;
 
             if (user != null)
             {
+                Service.GetCookieFromSession(HttpContext);
                 return View(user);
             }
             else
@@ -86,8 +65,9 @@ namespace WebMVC.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginVM model)
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, "http://localhost:5091/api/Login");
-            var personList = await GetUsersFromAPI();
+
+            var request = new HttpRequestMessage(HttpMethod.Post, "http://localhost:8080/api/Login");
+            var personList = await Service.GetUsersFromAPI();
 
             var loginData = personList
                 .Where(p => p.Name == model.Name && p.Password == model.Password)
@@ -102,32 +82,40 @@ namespace WebMVC.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var _token = await response.Content.ReadAsStringAsync();
-                    Response.Cookies.Append("jwt", _token, new CookieOptions
-                    {
-                        HttpOnly = true,
-                        Secure = false,
-                        SameSite = SameSiteMode.Strict,
-                        Expires = DateTime.Now.AddMinutes(60)
-                    });
+                    _token = await response.Content.ReadAsStringAsync();
                 }
                 else if (response.StatusCode == HttpStatusCode.Unauthorized)
                 {
                     return RedirectToAction("Error");
                 }
             }
+
             bool userExists = personList.Any(p => p.Name == model.Name && p.Password == model.Password);
             if (userExists)
             {
                 var currentUser = personList.FirstOrDefault(p => p.Name == model.Name && p.Password == model.Password);
+
+                var cookieContent = $"{_token}|{currentUser.Id}";
+
+                Response.Cookies.Append("cookie", cookieContent, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = false,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTime.Now.AddMinutes(60)
+                });
+                Service.GetCookieFromSession(HttpContext);
+                // or alternatively
+                // HttpContext.Session.SetInt32("UserId", currentUser.Id);
+
                 return RedirectToAction("Profile", new { accountId = currentUser.Id });
             }
             else
             {
-                return RedirectToAction("Error");
-                //return View(model);
+                return RedirectToAction("Error");                
             }
         }
+
 
         public IActionResult Index()
         {
@@ -141,7 +129,16 @@ namespace WebMVC.Controllers
 
         public IActionResult Registration()
         {
-            return View();
+
+            if (Service.GetUserId() != 0)
+            {
+                Service.DeleteCookieFromSession(HttpContext);
+                return View();
+            }
+            else
+            {
+                return View();
+            }
         }
 
         [HttpPost]
@@ -156,7 +153,7 @@ namespace WebMVC.Controllers
                 var json = JsonConvert.SerializeObject(model);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                var response = _httpClient.PostAsync("http://localhost:5091/api/Person", content).Result;
+                var response = _httpClient.PostAsync("http://localhost:8080/api/Person", content).Result;
                 if (response.IsSuccessStatusCode)
                 {
                     return RedirectToAction("Login", "Home");
@@ -167,6 +164,21 @@ namespace WebMVC.Controllers
                     return View(model);
                 }
             }
+        }
+
+        public IActionResult Logout()
+        {
+            Service.DeleteCookieFromSession(HttpContext);
+
+            var cookieOptions = new CookieOptions
+            {
+                Expires = DateTime.Now.AddDays(-1),
+                Path = "/"
+            };
+            Response.Cookies.Append("cookie", "", cookieOptions);
+            Service.DeleteCookieFromSession(HttpContext);
+
+            return RedirectToAction("index", "Home");
         }
 
         public IActionResult Privacy()

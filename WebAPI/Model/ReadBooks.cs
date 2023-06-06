@@ -6,10 +6,10 @@ namespace WebAPI.Model
     {
         [Key]
         public int Id { get; set; }
+        [Required]
+        public string ISBN { get; set; }
         public int PersonId { get; set; }
         public Person Person { get; set; }
-        public int BookId { get; set; }
-        public Book Book { get; set; }
         [Required]
         [StringLength(100)]
         public string Title { get; set; }
@@ -18,7 +18,10 @@ namespace WebAPI.Model
         public string Author { get; set; }
         [StringLength(200)]
         public string Description { get; set; }
+        [StringLength(500)]
+        public string Review { get; set; }
         public short PageNumber { get; set; }
+        public short Published { get; set; }
         public DateTime Finished { get; set; }
     }
 }

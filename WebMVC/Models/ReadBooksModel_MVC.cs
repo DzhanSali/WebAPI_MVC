@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace WebMVC.Models
 {
@@ -6,10 +7,10 @@ namespace WebMVC.Models
     {
         [Key]
         public int Id { get; set; }
+        [Required]
+        public string ISBN { get; set; }
         public int PersonId { get; set; }
         public PersonModel_MVC Person { get; set; }
-        public int BookId { get; set; }
-        public BookModel_MVC Book { get; set; }
         [Required]
         [StringLength(100)]
         public string Title { get; set; }
@@ -18,7 +19,12 @@ namespace WebMVC.Models
         public string Author { get; set; }
         [StringLength(200)]
         public string Description { get; set; }
+        [StringLength(500)]
+        public string Review { get; set; }
+        [DisplayName("Pages")]
         public short PageNumber { get; set; }
+        [DisplayName("Year")]
+        public short Published { get; set; }
         public DateTime Finished { get; set; }
     }
 }

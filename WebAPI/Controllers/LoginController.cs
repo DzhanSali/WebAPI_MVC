@@ -30,7 +30,6 @@ namespace WebAPI.Controllers
         {
             return _context.People.FirstOrDefault(o =>
                 o.Name == userLogin.Name && o.Password == userLogin.Password);
-            // if null redirect to action Login
         }
 
         [AllowAnonymous]
@@ -63,30 +62,6 @@ namespace WebAPI.Controllers
                 return Ok(tokenString);
             }
             return Unauthorized();
-        }
-
-        /*private string GenerateToken(Person user)
-        {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT:Key"]));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-            var claims = new[]
-            {
-                new Claim("Password", user.Password),
-                new Claim(ClaimTypes.Name, user.Name)
-            };
-
-            var tokenOptions = new JwtSecurityToken(
-                _config["JWT:Issuer"],
-                _config["JWT:Audience"],
-                claims,
-                expires: DateTime.Now.AddHours(1),
-                signingCredentials: credentials
-            );
-
-            var tokenString = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
-            return tokenString;
-        }
-    */
+        }       
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System.Net.Http;
 using System.Reflection;
@@ -10,54 +11,52 @@ namespace WebMVC.Controllers
 {
     public class BookController_MVC : Controller
     {
-        private HomeController _controller;
-        static int id = HomeController.statUserId;
         private static readonly HttpClient _httpClient = StatClient.WebAPIClient;
+        private int _loginId = Service.GetUserId();
+        // or alternatively
+        //int? loginId = HttpContext.Session.GetInt32("UserId");
 
-        public IActionResult Index()
+        public IActionResult Index(string search, int page = 1, int pageSize = 5)
         {
-            // edit here to get only the books associated with the user
-
-            IEnumerable<BookModel_MVC> bookList;
-            HttpResponseMessage response = StatClient.WebAPIClient.GetAsync("Books").Result;
-            bookList = response.Content.ReadAsAsync<IEnumerable<BookModel_MVC>>().Result;            
-
-            return View(bookList);
-        }
-
-        [HttpPost]
-        public IActionResult Index(BookModel_MVC bookModel)
-        {
-            using (HttpClient client = new HttpClient())
+            if (_loginId > 0)
             {
-                var apiUrl = "http://localhost:5091/api/Book";
+                IEnumerable<BookModel_MVC> bookList;
+                HttpResponseMessage response = StatClient.WebAPIClient.GetAsync("Books").Result;
+                bookList = response.Content.ReadAsAsync<IEnumerable<BookModel_MVC>>().Result;
 
-                bookModel.PersonId = id;
-                var jsonBook = JsonConvert.SerializeObject(bookModel);
-                var content = new StringContent(jsonBook, Encoding.UTF8, "application/json");
+                bookList = bookList.Where(book => book.PersonId == _loginId);
 
-                content.Headers.Add("PersonId", bookModel.PersonId.ToString());
-
-                var response = client.PostAsync(apiUrl, content).Result;
-
-                if (response.IsSuccessStatusCode)
+                if (!string.IsNullOrEmpty(search))
                 {
-                    return RedirectToAction("Index");
+                    bookList = bookList.Where(b => b.Title.Contains(search) || b.Author.Contains(search));
                 }
-                else
-                {
-                    return RedirectToAction("Error");
-                }
+
+                int totalItems = bookList.Count();
+                int totalPages = (int)System.Math.Ceiling(totalItems / (double)pageSize);
+
+                bookList = bookList.Skip((page - 1) * pageSize).Take(pageSize);
+
+                ViewData["CurrentPage"] = page;
+                ViewData["PageSize"] = pageSize;
+                ViewData["TotalItems"] = totalItems;
+                ViewData["TotalPages"] = totalPages;
+
+                return View(bookList.ToList());
+            }
+            else
+            {
+                ErrorViewModel errorViewModel = new ErrorViewModel();
+                errorViewModel.NotLogged = "You are not logged in!";
+                return View("Error", errorViewModel);
             }
         }
 
 
-
-        public IActionResult CreateBook(int userId)
+        public IActionResult CreateBook()
         {
             BookModel_MVC book = new BookModel_MVC();
-            book.PersonId = userId; 
-            return View(book);
+            book.PersonId = _loginId;
+            return View();
         }
 
         [HttpPost]
@@ -65,16 +64,16 @@ namespace WebMVC.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View(book);               
+                return View(book);
             }
             else
             {
-                book.PersonId = id;
+                book.PersonId = _loginId;
 
                 var json = JsonConvert.SerializeObject(book);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                var response = _httpClient.PostAsync("http://localhost:5091/api/Books", content).Result;
+                var response = _httpClient.PostAsync("http://localhost:8080/api/Books", content).Result;
                 if (response.IsSuccessStatusCode)
                 {
                     return RedirectToAction("Index");
@@ -89,9 +88,9 @@ namespace WebMVC.Controllers
 
         [HttpGet]
         public IActionResult EditBook(int bookid)
-        {                 
-            HttpResponseMessage response = _httpClient.GetAsync("http://localhost:5091/api/Books/" + bookid).Result;
-            
+        {
+            HttpResponseMessage response = _httpClient.GetAsync("http://localhost:8080/api/Books/" + bookid).Result;
+
             if (response.IsSuccessStatusCode)
             {
                 var book = response.Content.ReadAsAsync<BookModel_MVC>().Result;
@@ -104,18 +103,17 @@ namespace WebMVC.Controllers
         }
 
         [HttpPut]
-        [IgnoreAntiforgeryToken]
         public IActionResult EditBook(BookModel_MVC book)
         {
-            book.PersonId = id;
+            book.PersonId = _loginId;
             var json = JsonConvert.SerializeObject(book);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            
-            var response = _httpClient.PutAsync("http://localhost:5091/api/Books/" + book.Id, content).Result;
+
+            var response = _httpClient.PutAsync("http://localhost:8080/api/Books/" + book.Id, content).Result;
             if (response.IsSuccessStatusCode)
             {
-                return RedirectToAction("CreateBook");
+                return RedirectToAction("Index", "BookController_MVC");
             }
             else
             {
@@ -123,5 +121,7 @@ namespace WebMVC.Controllers
                 return RedirectToAction("Error");
             }
         }
+
     }
 }
+

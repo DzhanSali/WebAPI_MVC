@@ -7,6 +7,7 @@ namespace WebAPI.Model
     {
         [Key]
         public int Id { get; set; }
+        [Required]
         public string ISBN { get; set; }    
         public int PersonId { get; set; }
         public Person Person { get; set; }
@@ -19,6 +20,6 @@ namespace WebAPI.Model
         [StringLength(200)]
         public string Description { get; set; }
         public short PageNumber { get; set; }
-        public DateTime Published { get; set; }
+        public short Published { get; set; }
     }
 }

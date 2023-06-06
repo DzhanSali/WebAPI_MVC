@@ -1,77 +1,210 @@
 ﻿@model IEnumerable<WebMVC.Models.ReadBooksModel_MVC>
+@using static WebMVC.Static_Vars.Service;
 
 @{
     ViewData["Title"] = "Index";
+    int userId = WebMVC.Static_Vars.Service.GetUserId();
+
+    int currentPage = (int)ViewData["CurrentPage"];
+    int pageSize = (int)ViewData["PageSize"];
+    int totalItems = (int)ViewData["TotalItems"];
+    int totalPages = (int)ViewData["TotalPages"];
 }
 
-<h1>Index</h1>
+<style>
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        background-color: #f1f1f1;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 1;
+    }
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+        .dropdown-menu a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+            .dropdown-menu a:hover {
+                background-color: #ddd;
+            }
+
+    .dropdown:hover .dropdown-menu {
+        display: block;
+    }
+</style>
+
+
+<h1>Finished Books</h1>
+
+<div style="display:flex; justify-content:space-between; margin-bottom: 30px;">
+    <button type="button" class="btn btn-primary" onclick="location.href='/BookController_MVC/Index'">Back To Book List</button>
+    <div>
+        <div class="col-md-6" style="width:500px">
+            <div class="input-group">
+                <input type="text" id="searchInput" class="form-control" placeholder="Search by title/author">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" type="button" onclick="searchBooks()">Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
 <table class="table">
-    <thead>
+    <thead style="font-style: italic; vertical-align: middle;">
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Id)
+                @Html.DisplayNameFor(model => model.ISBN)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PersonId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.BookId)
-            </th>
-            <th>
+            <th style="text-align: center;">
                 @Html.DisplayNameFor(model => model.Title)
             </th>
-            <th>
+            <th style="text-align: center;">
                 @Html.DisplayNameFor(model => model.Author)
             </th>
-            <th>
+            <th style="text-align: center;">
                 @Html.DisplayNameFor(model => model.Description)
             </th>
-            <th>
+            <th style="text-align: center;">
+                @Html.DisplayNameFor(model => model.Review)
+            </th>
+            <th style="text-align: center;">
                 @Html.DisplayNameFor(model => model.PageNumber)
             </th>
-            <th>
+            <th style="text-align: center;">
+                @Html.DisplayNameFor(model => model.Published)
+            </th>
+            <th style="text-align: center;">
                 @Html.DisplayNameFor(model => model.Finished)
             </th>
             <th></th>
         </tr>
     </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PersonId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.BookId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Author)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PageNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Finished)
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-            </td>
-        </tr>
-}
+    <tbody style="text-align: center;">
+        @foreach (var item in Model)
+        {
+            <tr style="border-collapse: inherit;">
+                <th style="word-wrap: break-word; max-width: 60px;">
+                    <span id="isbn_@item.ISBN">@Html.DisplayFor(modelItem => item.ISBN)</span>
+                </th>
+                <td>
+                    <span id="title_@item.Title"> @Html.DisplayFor(modelItem => item.Title) </span>
+                </td>
+                <td>
+                    <span id="author_@item.Author"> @Html.DisplayFor(modelItem => item.Author)</span>
+                </td>
+                <td style="width:200px">
+                    <span id="description_@item.Description" style=" scrollbar-width: thin; display: inline-block; overflow: auto; max-height: 200px;"> @Html.DisplayFor(modelItem => item.Description)</span>
+                </td>
+                <th style="font-weight: inherit;">
+                    <span style=" scrollbar-width: thin; display: inline-block; overflow: auto; max-height: 200px;">@Html.DisplayFor(modelItem => item.Review)</span>
+                </th>
+                <td>
+                    <span id="pageNumber_@item.PageNumber"> @Html.DisplayFor(modelItem => item.PageNumber)</span>
+                </td>
+                <th style="font-weight: inherit;">
+                    <span id="published_@item.Published">@Html.DisplayFor(modelItem => item.Published)</span>
+                </th>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Finished)
+                </td>
+                <td>
+                    <button style="margin-bottom: 3px; width: 78px;" type="button" class="btn btn-primary" onclick="location.href='@Url.Action("EditReadBook", new { bookId = item.Id })'">Edit</button>
+                    <button style="margin-bottom: 3px; width: 78px;" type="button" class="btn btn-primary" id="delete" onclick="unreadBook('@item.ISBN', '@item.Title', '@item.Author', '@item.Description', '@item.PageNumber', '@item.Published')">Unread</button>
+                    <button style="margin-bottom: 3px; width: 78px;" type="button" class="btn btn-primary" id="delete" onclick="deleteBook(@item.Id)">Delete</button>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+
+<div class="pagination" style="justify-content: space-between;">
+    <div style="display: inline-flex;">
+        @if (totalPages > 1)
+        {
+            int startPage = Math.Max(1, currentPage - 1);
+
+            if (currentPage > 1)
+            {
+                <a href="@Url.Action("Index", new { page = currentPage - 1, pageSize })" class="page-link">Previous</a>
+            }
+
+            for (int i = startPage; i <= Math.Min(startPage + 2, totalPages); i++)
+            {
+                <a href="@Url.Action("Index", new { page = i, pageSize })" class="page-link @(i == currentPage ? "active" : "")">@i</a>
+            }
+
+            if (currentPage < totalPages)
+            {
+                <a href="@Url.Action("Index", new { page = currentPage + 1, pageSize })" class="page-link">Next</a>
+            }
+
+        }
+    </div>
+
+    <div class="dropdown">
+        <button class="btn btn-primary"> Items per page: </button>
+
+        <div class="dropdown-menu" aria-labelledby="pageSizeDropdown">
+            <a class="dropdown-item" href="@Url.Action("Index", new { page = currentPage, pageSize = 5 })">5</a>
+            <a class="dropdown-item" href="@Url.Action("Index", new { page = currentPage, pageSize = 10 })">10</a>
+            <a class="dropdown-item" href="@Url.Action("Index", new { page = currentPage, pageSize = 20 })">20</a>
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+    function unreadBook(isbn, title, author, description, pageNumber, published) {
+
+        var requestBody = {
+            ISBN: isbn,
+            PersonId: @userId,
+            Title: title,
+            Author: author,
+            Description: description,
+            PageNumber: pageNumber,
+            Published: published
+        };
+
+        $.ajax({
+            url: "http://localhost:8080/api/Books",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(requestBody),
+            success: function () {
+                window.location.reload();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                alert("Error marking book as unread: " + errorThrown);
+            }
+        });
+    }
+
+    function deleteBook(bookId) {
+        $.ajax({
+            url: "http://localhost:8080/api/ReadBooks/" + bookId,
+            type: "DELETE",
+            success: function () {
+                window.location.reload();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                alert("Error deleting book: " + errorThrown);
+            }
+        })
+    }
+
+    function searchBooks() {
+        var searchInput = document.getElementById("searchInput").value;
+        var url = '@Url.Action("Index", "ReadBooksController_MVC", new { search = "__search__" })';
+        url = url.replace("__search__", encodeURIComponent(searchInput));
+        location.href = url;
+    }
+</script>

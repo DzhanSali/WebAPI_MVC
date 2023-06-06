@@ -33,3 +33,12 @@
         <strong style="font-size:xx-large; display:grid; justify-content:center">@Model.LoginError</strong>
     </h2>
 }
+
+@if (Model.NotLogged != null)
+{
+    <br />
+    <br />
+    <h2 class="text-danger">
+        <strong style="font-size:xx-large; display:grid; justify-content:center">@Model.NotLogged</strong>
+    </h2>
+}

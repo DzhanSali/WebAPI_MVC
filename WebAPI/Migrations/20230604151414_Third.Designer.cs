@@ -12,8 +12,8 @@ using WebAPI.Repository;
 namespace WebAPI.Migrations
 {
     [DbContext(typeof(DBConnection))]
-    [Migration("20230531171324_First")]
-    partial class First
+    [Migration("20230604151414_Third")]
+    partial class Third
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -43,6 +43,7 @@ namespace WebAPI.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("ISBN")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<short>("PageNumber")
@@ -51,8 +52,8 @@ namespace WebAPI.Migrations
                     b.Property<int>("PersonId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("Published")
-                        .HasColumnType("datetime2");
+                    b.Property<short>("Published")
+                        .HasColumnType("smallint");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -118,9 +119,6 @@ namespace WebAPI.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<int>("BookId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Description")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
@@ -128,11 +126,22 @@ namespace WebAPI.Migrations
                     b.Property<DateTime>("Finished")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("ISBN")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<short>("PageNumber")
                         .HasColumnType("smallint");
 
                     b.Property<int>("PersonId")
                         .HasColumnType("int");
+
+                    b.Property<short>("Published")
+                        .HasColumnType("smallint");
+
+                    b.Property<string>("Review")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -140,8 +149,6 @@ namespace WebAPI.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BookId");
 
                     b.HasIndex("PersonId");
 
@@ -161,19 +168,11 @@ namespace WebAPI.Migrations
 
             modelBuilder.Entity("WebAPI.Model.ReadBooks", b =>
                 {
-                    b.HasOne("WebAPI.Model.Book", "Book")
-                        .WithMany()
-                        .HasForeignKey("BookId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("WebAPI.Model.Person", "Person")
                         .WithMany()
                         .HasForeignKey("PersonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Book");
 
                     b.Navigation("Person");
                 });

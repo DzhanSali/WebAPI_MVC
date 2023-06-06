@@ -1,20 +1,19 @@
-﻿@model WebMVC.Models.BookModel_MVC
+﻿@model WebMVC.Models.ReadBooksModel_MVC
 
 @{
-    ViewData["Title"] = "EditBook";
+    ViewData["Title"] = "EditReadBook";
 }
 
-<h1 style="display:flex; justify-content:center">Edit</h1>
+<h1 style="display:flex; justify-content:center">Edit Book</h1>
 
 
 <hr />
 <div class="row" style="display:flex; justify-content:center">
     <div class="col-md-4">
-        <form asp-action="EditBook">
-            
+        <form asp-action="EditReadBook">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <input asp-for="Id" id ="Id" class="form-control" type="hidden"/>
+                <input asp-for="Id" id="Id" class="form-control" type="hidden" />
                 <span asp-validation-for="Id" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -23,7 +22,7 @@
                 <span asp-validation-for="ISBN" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input asp-for="PersonId" id="PersonId" class="form-control" type="hidden"/>
+                <input asp-for="PersonId" id="PersonId" class="form-control" type="hidden" />
                 <span asp-validation-for="PersonId" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -37,9 +36,14 @@
                 <span asp-validation-for="Author" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
+                <label asp-for="Description" class="control-label"></label>                
                 <textarea asp-for="Description" id="Description" class="form-control" style="height: 160px; overflow-y: auto; scrollbar-width:thin"></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Review" class="control-label"></label>
+                <textarea asp-for="Review" id="Review" class="form-control" style="height: 160px; overflow-y: auto; scrollbar-width:thin"></textarea>
+                <span asp-validation-for="Review" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="PageNumber" class="control-label"></label>
@@ -50,6 +54,11 @@
                 <label asp-for="Published" class="control-label"></label>
                 <input asp-for="Published" id="Published" class="form-control" />
                 <span asp-validation-for="Published" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Finished" class="control-label"></label>
+                <input asp-for="Finished" id="Finished" class="form-control" />
+                <span asp-validation-for="Finished" class="text-danger"></span>
             </div>
             <div class="form-group" style="margin-top: 20px;display: flex;justify-content: center;">
                 <button type="button" class="btn btn-primary" id="edit">Edit</button>
@@ -71,7 +80,7 @@
 
     function saveChanges() {
         document.getElementById("edit").removeEventListener("click", saveChanges);
-        
+
         var bookId = @Model.Id;
         var title = document.getElementById("Title").value;
         var isbn = document.getElementById("ISBN").value;
@@ -80,6 +89,16 @@
         var page = document.getElementById("PageNumber").value;
         var published = document.getElementById("Published").value;
         var perId = document.getElementById("PersonId").value;
+        var review = document.getElementById("Review").value;
+
+        var finishedInput = document.getElementById("Finished").value;
+        var finished;
+        if (finishedInput) {
+            var parsedDate = new Date(finishedInput);
+            if (!isNaN(parsedDate)) {
+                finished = parsedDate.toISOString();
+            }
+        }
 
         var requestBody = {
             Id: bookId,
@@ -87,20 +106,22 @@
             ISBN: isbn,
             Author: author,
             Description: des,
+            Review: review,
             PageNumber: page,
             Published: published,
+            Finished: finished,
             PersonId: perId
         };
 
         $.ajax({
-            url: "http://localhost:8080/api/Books/" + bookId,
+            url: "http://localhost:8080/api/ReadBooks/" + bookId,
             type: "PUT",
             contentType: "application/json",
             data: JSON.stringify(requestBody),
-            
+
             success: function () {
                 alert("Book updated successfully");
-                window.location.href = "/BookController_MVC/Index";
+                window.location.href = "/ReadBooksController_MVC/Index";
             },
             error: function (xhr, textStatus, errorThrown) {
                 alert("Error updating book: " + errorThrown);
@@ -108,4 +129,3 @@
         });
     }
 </script>
-
